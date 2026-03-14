@@ -92,7 +92,7 @@
                                     </strong>
                                 </td>
                                 <td>
-                                    <form action="{{ route('transactions.destroy', $transaction) }}" method="post" onsubmit="return confirm('¿Eliminar este movimiento?');">
+                                    <form action="{{ route('transactions.destroy', $transaction) }}" method="post" data-confirm data-confirm-message="¿Eliminar este movimiento? Esta accion no se puede deshacer.">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-danger" type="submit" style="padding:.42rem .62rem; font-size:.76rem;">Eliminar</button>

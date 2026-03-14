@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'HAXX COORP')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>HAXX COORP</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/icono-haxx.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icono-haxx.png') }}">
+    @include('partials.assets')
 </head>
 <body>
     <div class="auth-shell">

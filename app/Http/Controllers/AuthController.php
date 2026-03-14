@@ -14,6 +14,8 @@ use Throwable;
 
 class AuthController extends Controller
 {
+    private const USERNAME_REGEX = '/^[A-Za-z0-9._-]+$/';
+
     public function showLogin()
     {
         return view('auth.login');
@@ -59,9 +61,12 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'display_name' => ['required', 'string', 'min:2', 'max:60'],
-            'username' => ['required', 'string', 'min:3', 'max:20', 'regex:/^[a-z0-9._-]+$/', Rule::unique('users', 'username')],
+            'username' => ['required', 'string', 'min:3', 'max:20', 'regex:'.self::USERNAME_REGEX, Rule::unique('users', 'username')],
             'email' => ['required', 'email', 'max:120', Rule::unique('users', 'email')],
             'password' => ['required', 'confirmed', 'string', 'min:8', 'max:120'],
+        ], [
+            'username.regex' => 'El usuario solo puede contener letras, numeros, punto (.), guion (-) o guion bajo (_).',
+            'username.unique' => 'Ese nombre de usuario ya esta en uso.',
         ]);
 
         $data['username'] = mb_strtolower(trim($data['username']));
@@ -77,9 +82,33 @@ class AuthController extends Controller
             'onboarding_completed' => false,
         ]);
 
-        event(new Registered($user));
+        $verificationNotificationSent = false;
+        try {
+            event(new Registered($user));
+            $verificationNotificationSent = true;
+        } catch (Throwable $exception) {
+            report($exception);
+        }
 
         Auth::login($user);
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->to($this->redirectAfterAuth($user))->with('success', 'Cuenta creada correctamente.');
+        }
+
+        if (! $verificationNotificationSent) {
+            return redirect()->route('verification.notice')->with(
+                'warning',
+                'Cuenta creada, pero no se pudo enviar el correo de confirmacion. Revisa SMTP y reenvia la verificacion.'
+            );
+        }
+
+        if (! $this->mailerCanDeliverInboxMessages()) {
+            return redirect()->route('verification.notice')->with(
+                'warning',
+                'Cuenta creada. El correo se genero en modo local (MAIL_MAILER=log/array). Configura SMTP para recibirlo en tu bandeja.'
+            );
+        }
 
         return redirect()->route('verification.notice')->with('success', 'Cuenta creada. Revisa tu correo para confirmar.');
     }
@@ -174,10 +203,13 @@ class AuthController extends Controller
                 'string',
                 'min:3',
                 'max:20',
-                'regex:/^[a-z0-9._-]+$/',
+                'regex:'.self::USERNAME_REGEX,
                 Rule::unique('users', 'username')->ignore($user->id),
             ],
             'password' => ['required', 'confirmed', 'string', 'min:8', 'max:120'],
+        ], [
+            'username.regex' => 'El usuario solo puede contener letras, numeros, punto (.), guion (-) o guion bajo (_).',
+            'username.unique' => 'Ese nombre de usuario ya esta en uso.',
         ]);
 
         $user->fill([
@@ -220,5 +252,23 @@ class AuthController extends Controller
         }
 
         return $candidate;
+    }
+
+    private function mailerCanDeliverInboxMessages(): bool
+    {
+        $mailer = (string) config('mail.default');
+        if (in_array($mailer, ['log', 'array'], true)) {
+            return false;
+        }
+
+        if ($mailer !== 'smtp') {
+            return true;
+        }
+
+        $host = (string) config('mail.mailers.smtp.host');
+        $username = (string) config('mail.mailers.smtp.username');
+        $password = (string) config('mail.mailers.smtp.password');
+
+        return $host !== '' && $username !== '' && $password !== '';
     }
 }

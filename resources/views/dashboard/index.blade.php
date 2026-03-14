@@ -22,19 +22,19 @@
     </section>
 
     <section class="grid-4" style="margin-bottom:.8rem;">
-        <article class="glass-card" style="padding:1rem;">
+        <article class="glass-card stat-card">
             <p class="stat-label">Balance disponible</p>
-            <p class="stat-value">S/ {{ number_format($balance, 2) }}</p>
+            <p class="stat-value stat-money">S/ {{ number_format($balance, 2) }}</p>
         </article>
-        <article class="glass-card" style="padding:1rem;">
+        <article class="glass-card stat-card">
             <p class="stat-label">Ingresos</p>
-            <p class="stat-value text-success">+S/ {{ number_format($income, 2) }}</p>
+            <p class="stat-value stat-money text-success">+S/ {{ number_format($income, 2) }}</p>
         </article>
-        <article class="glass-card" style="padding:1rem;">
+        <article class="glass-card stat-card">
             <p class="stat-label">Gastos</p>
-            <p class="stat-value text-danger">-S/ {{ number_format($expense, 2) }}</p>
+            <p class="stat-value stat-money text-danger">-S/ {{ number_format($expense, 2) }}</p>
         </article>
-        <article class="glass-card" style="padding:1rem;">
+        <article class="glass-card stat-card">
             <p class="stat-label">Uso de presupuesto</p>
             <p class="stat-value">{{ number_format($usagePercent, 0) }}%</p>
             <p class="muted" style="margin:.2rem 0 0; font-size:.8rem;">
@@ -45,6 +45,23 @@
                 @endif
             </p>
         </article>
+    </section>
+
+    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
+        <h2 style="margin:0; font-size:1.05rem;">Meta semanal</h2>
+        <p class="muted" style="margin:.25rem 0 .65rem; font-size:.82rem;">
+            Semana: {{ $currentWeekStart->translatedFormat('d M') }} - {{ $currentWeekEnd->translatedFormat('d M Y') }}
+        </p>
+        @if ($weeklyGoalAmount > 0)
+            <div style="display:flex; flex-wrap:wrap; gap:.9rem; align-items:baseline;">
+                <p style="margin:0;"><strong>Gasto semanal:</strong> <span class="text-danger">S/ {{ number_format($weeklyExpense, 2) }}</span></p>
+                <p style="margin:0;"><strong>Meta:</strong> S/ {{ number_format($weeklyGoalAmount, 2) }}</p>
+                <p style="margin:0;"><strong>Avance:</strong> {{ number_format($weeklyUsagePercent, 0) }}%</p>
+            </div>
+        @else
+            <p class="muted" style="margin:0 0 .4rem;">Aun no definiste meta semanal para la semana actual.</p>
+        @endif
+        <a href="{{ route('budgets.index') }}" class="auth-link" style="display:inline-block; margin-top:.55rem;">Configurar meta semanal</a>
     </section>
 
     <section class="grid-2" style="margin-bottom:.8rem;">

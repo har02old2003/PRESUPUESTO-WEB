@@ -3,10 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'HAXX COORP')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>HAXX COORP</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/icono-haxx.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icono-haxx.png') }}">
+    @include('partials.assets')
 </head>
-<body>
+<body data-limit-alerts='@json($limitAlerts ?? [])' data-auth-user="{{ auth()->id() }}">
     @php($routeName = request()->route()?->getName() ?? '')
     <div class="app-layout">
         <aside class="sidebar">
@@ -54,5 +56,16 @@
         <a href="{{ route('budgets.index') }}" class="{{ str_starts_with($routeName, 'budgets') ? 'active' : '' }}">Presupuesto</a>
         <a href="{{ route('settings.index') }}" class="{{ str_starts_with($routeName, 'settings') || str_starts_with($routeName, 'exports') ? 'active' : '' }}">Ajustes</a>
     </nav>
+
+    <div class="confirm-modal" data-confirm-modal hidden>
+        <div class="glass-card confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <h3 id="confirm-title" class="confirm-title">Confirmar eliminación</h3>
+            <p class="confirm-message" data-confirm-message>¿Deseas eliminar este registro?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-outline" type="button" data-confirm-cancel>Cancelar</button>
+                <button class="btn btn-danger-solid" type="button" data-confirm-accept>Eliminar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

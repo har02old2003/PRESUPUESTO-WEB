@@ -1,4 +1,3 @@
-import './bootstrap';
 
 const sliderRoot = document.querySelector('[data-slider]');
 if (sliderRoot) {

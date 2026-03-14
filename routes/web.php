@@ -50,6 +50,8 @@ Route::middleware(['auth', 'verified', 'credential_setup', 'onboarding'])->group
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
     Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
+    Route::post('/budgets/weekly', [BudgetController::class, 'storeWeekly'])->name('budgets.weekly.store');
+    Route::delete('/budgets/weekly/{weeklyGoal}', [BudgetController::class, 'destroyWeekly'])->name('budgets.weekly.destroy');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('/exports/csv', [SettingsController::class, 'exportCsv'])->name('exports.csv');

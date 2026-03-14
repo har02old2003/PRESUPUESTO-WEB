@@ -102,6 +102,11 @@ class SettingsController extends Controller
 
     private function toDataUri(string $path): ?string
     {
+        if (! extension_loaded('gd')) {
+            // Without GD, DomPDF cannot process embedded PNG images reliably.
+            return null;
+        }
+
         if (! file_exists($path)) {
             return null;
         }

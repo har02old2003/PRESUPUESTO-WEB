@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MonthlyBudget;
+use App\Models\WeeklyGoal;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -15,9 +17,17 @@ class BudgetController extends Controller
             ->orderByDesc('month_key')
             ->paginate(12);
 
+        $weeklyGoals = WeeklyGoal::query()
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('week_start')
+            ->limit(12)
+            ->get();
+
         return view('budgets.index', [
             'budgets' => $budgets,
             'defaultMonth' => now()->format('Y-m'),
+            'weeklyGoals' => $weeklyGoals,
+            'defaultWeekStart' => now()->startOfWeek(Carbon::MONDAY)->toDateString(),
         ]);
     }
 
@@ -41,6 +51,28 @@ class BudgetController extends Controller
         return back()->with('success', 'Presupuesto guardado correctamente.');
     }
 
+    public function storeWeekly(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'week_start' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:1', 'max:999999999.99'],
+        ]);
+
+        $normalizedWeekStart = Carbon::parse($data['week_start'])->startOfWeek(Carbon::MONDAY)->toDateString();
+
+        WeeklyGoal::query()->updateOrCreate(
+            [
+                'user_id' => $request->user()->id,
+                'week_start' => $normalizedWeekStart,
+            ],
+            [
+                'amount' => $data['amount'],
+            ]
+        );
+
+        return back()->with('success', 'Meta semanal guardada correctamente.');
+    }
+
     public function destroy(Request $request, MonthlyBudget $budget): RedirectResponse
     {
         abort_unless($budget->user_id === $request->user()->id, 403);
@@ -48,5 +80,14 @@ class BudgetController extends Controller
         $budget->delete();
 
         return back()->with('success', 'Presupuesto eliminado.');
+    }
+
+    public function destroyWeekly(Request $request, WeeklyGoal $weeklyGoal): RedirectResponse
+    {
+        abort_unless($weeklyGoal->user_id === $request->user()->id, 403);
+
+        $weeklyGoal->delete();
+
+        return back()->with('success', 'Meta semanal eliminada.');
     }
 }
