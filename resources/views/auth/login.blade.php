@@ -29,15 +29,6 @@
     </form>
 
     <div class="auth-row">
-        <span class="muted" style="font-size:.88rem;">o continúa con</span>
-    </div>
-
-    <a href="{{ route('auth.google.redirect') }}" class="btn btn-outline oauth-btn">
-        <span class="oauth-icon">G</span>
-        Ingresar con Google
-    </a>
-
-    <div class="auth-row">
         <span class="muted" style="font-size:.85rem;">¿No tienes cuenta?</span>
         <a href="{{ route('register') }}" class="auth-link">Regístrate</a>
     </div>

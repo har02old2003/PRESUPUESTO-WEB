@@ -7,9 +7,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
 class AuthController extends Controller
@@ -123,67 +121,6 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Sesion cerrada correctamente.');
     }
 
-    public function redirectToGoogle(): RedirectResponse
-    {
-        return Socialite::driver('google')
-            ->scopes(['openid', 'profile', 'email'])
-            ->redirect();
-    }
-
-    public function handleGoogleCallback(): RedirectResponse
-    {
-        try {
-            $googleUser = Socialite::driver('google')->user();
-            $email = mb_strtolower(trim((string) $googleUser->getEmail()));
-
-            if ($email === '') {
-                return redirect()->route('login')->withErrors(['oauth' => 'Google no devolvio correo valido.']);
-            }
-
-            $user = User::query()
-                ->where('google_id', $googleUser->getId())
-                ->orWhere('email', $email)
-                ->first();
-
-            if (! $user) {
-                $seed = $googleUser->getNickname() ?: Str::before($email, '@');
-                $username = $this->generateUniqueUsername($seed);
-
-                $user = User::create([
-                    'display_name' => $googleUser->getName() ?: ucfirst($username),
-                    'username' => $username,
-                    'email' => $email,
-                    'password' => null,
-                    'auth_provider' => 'google',
-                    'google_id' => $googleUser->getId(),
-                    'email_verified_at' => now(),
-                    'credential_setup_completed' => false,
-                    'onboarding_completed' => false,
-                ]);
-            } else {
-                $provider = $user->auth_provider;
-                if (! str_contains($provider, 'google')) {
-                    $provider = $provider === 'local' ? 'google_linked' : $provider.'_google';
-                }
-
-                $user->fill([
-                    'google_id' => $googleUser->getId(),
-                    'auth_provider' => $provider,
-                    'email_verified_at' => $user->email_verified_at ?? now(),
-                    'display_name' => $user->display_name ?: ($googleUser->getName() ?: $user->username),
-                ])->save();
-            }
-
-            Auth::login($user, true);
-
-            return redirect()->to($this->redirectAfterAuth($user));
-        } catch (Throwable) {
-            return redirect()->route('login')->withErrors([
-                'oauth' => 'No se pudo iniciar con Google. Verifica configuracion OAuth y vuelve a intentar.',
-            ]);
-        }
-    }
-
     public function showCredentialSetup(Request $request)
     {
         return view('auth.credential-setup', [
@@ -233,25 +170,6 @@ class AuthController extends Controller
         }
 
         return route('dashboard');
-    }
-
-    private function generateUniqueUsername(string $seed): string
-    {
-        $normalized = preg_replace('/[^a-z0-9._-]/', '', mb_strtolower($seed));
-        $base = trim($normalized ?: 'usuario', '._-');
-        $base = $base === '' ? 'usuario' : $base;
-        $base = Str::limit($base, 16, '');
-
-        $candidate = $base;
-        $counter = 1;
-
-        while (User::query()->where('username', $candidate)->exists()) {
-            $suffix = (string) $counter;
-            $candidate = Str::limit($base, 20 - strlen($suffix), '').$suffix;
-            $counter++;
-        }
-
-        return $candidate;
     }
 
     private function mailerCanDeliverInboxMessages(): bool

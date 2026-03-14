@@ -5,7 +5,7 @@
 @section('content')
     <div>
         <h1 class="hero-title">Completa tu acceso</h1>
-        <p class="hero-subtitle">Tu Google ya está vinculado. Define usuario y contraseña para ingresar también sin Google.</p>
+        <p class="hero-subtitle">Define usuario y contraseña para completar tu acceso al sistema.</p>
     </div>
 
     <form method="post" action="{{ route('credential.store') }}" class="form-grid">
