@@ -63,8 +63,12 @@ class AuthController extends Controller
             'email' => ['required', 'email', 'max:120', Rule::unique('users', 'email')],
             'password' => ['required', 'confirmed', 'string', 'min:8', 'max:120'],
         ], [
+            'display_name.required' => 'Ingresa tu nombre visible.',
             'username.regex' => 'El usuario solo puede contener letras, numeros, punto (.), guion (-) o guion bajo (_).',
             'username.unique' => 'Ese nombre de usuario ya esta en uso.',
+            'email.email' => 'Ingresa un correo valido.',
+            'email.unique' => 'Ese correo ya esta registrado. Inicia sesion o usa otro correo.',
+            'password.confirmed' => 'La confirmacion de contraseña no coincide.',
         ]);
 
         $data['username'] = mb_strtolower(trim($data['username']));
