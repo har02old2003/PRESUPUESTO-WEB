@@ -5,8 +5,8 @@
 @section('page_subtitle', 'Define límites mensuales y controla tu ritmo financiero')
 
 @section('content')
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <h2 style="margin:0 0 .7rem; font-size:1.05rem;">Crear o actualizar presupuesto</h2>
+    <section class="glass-card section-block" style="margin-bottom:.8rem;">
+        <h2 class="section-title" style="margin-bottom:.7rem;">Crear o actualizar presupuesto</h2>
         <form method="post" action="{{ route('budgets.store') }}" class="grid-3">
             @csrf
             <div class="field">
@@ -25,8 +25,8 @@
         </form>
     </section>
 
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <h2 style="margin:0 0 .7rem; font-size:1.05rem;">Meta semanal</h2>
+    <section class="glass-card section-block" style="margin-bottom:.8rem;">
+        <h2 class="section-title" style="margin-bottom:.7rem;">Meta semanal</h2>
         <form method="post" action="{{ route('budgets.weekly.store') }}" class="grid-3">
             @csrf
             <div class="field">
@@ -45,21 +45,22 @@
         </form>
 
         <div style="margin-top:.9rem;">
-            <h3 style="margin:0 0 .55rem; font-size:.95rem;">Historial semanal</h3>
+            <h3 class="section-title" style="margin:0 0 .55rem; font-size:1rem;">Historial semanal</h3>
             @if ($weeklyGoals->isEmpty())
                 <p class="muted" style="margin:0;">Aún no tienes metas semanales registradas.</p>
             @else
-                <div style="display:grid; gap:.5rem;">
+                <div class="soft-list">
                     @foreach ($weeklyGoals as $weeklyGoal)
-                        <article class="glass-card" style="padding:.75rem; border-radius:14px; background:var(--surface-soft);">
-                            <div style="display:flex; justify-content:space-between; gap:.6rem; align-items:center;">
-                                <div>
-                                    <p style="margin:0; font-weight:700;">
+                        <article class="soft-item">
+                            <div class="soft-item-body">
+                                <p class="soft-item-title">
                                         Semana {{ \Carbon\Carbon::parse($weeklyGoal->week_start)->translatedFormat('d M') }}
                                         - {{ \Carbon\Carbon::parse($weeklyGoal->week_start)->addDays(6)->translatedFormat('d M Y') }}
-                                    </p>
-                                    <p style="margin:.2rem 0 0;" class="muted">S/ {{ number_format((float) $weeklyGoal->amount, 2) }}</p>
-                                </div>
+                                </p>
+                                <p class="soft-item-sub">S/ {{ number_format((float) $weeklyGoal->amount, 2) }}</p>
+                            </div>
+                            <div style="display:flex; gap:.48rem; align-items:center;">
+                                <span class="amount-pill expense">Meta</span>
                                 <form method="post" action="{{ route('budgets.weekly.destroy', $weeklyGoal) }}" data-confirm data-confirm-message="¿Eliminar esta meta semanal? Esta accion no se puede deshacer.">
                                     @csrf
                                     @method('DELETE')
@@ -73,20 +74,21 @@
         </div>
     </section>
 
-    <section class="glass-card" style="padding:1rem;">
-        <h2 style="margin:0 0 .7rem; font-size:1.05rem;">Historial de presupuestos</h2>
+    <section class="glass-card section-block">
+        <h2 class="section-title" style="margin:0 0 .7rem;">Historial de presupuestos</h2>
 
         @if ($budgets->isEmpty())
             <p class="muted" style="margin:0;">Aún no tienes presupuestos registrados.</p>
         @else
-            <div style="display:grid; gap:.55rem;">
+            <div class="soft-list">
                 @foreach ($budgets as $budget)
-                    <article class="glass-card" style="padding:.8rem; border-radius:14px; background:var(--surface-soft);">
-                        <div style="display:flex; justify-content:space-between; gap:.6rem; align-items:center;">
-                            <div>
-                                <p style="margin:0; font-weight:700;">{{ \Carbon\Carbon::createFromFormat('Y-m', $budget->month_key)->translatedFormat('F Y') }}</p>
-                                <p style="margin:.2rem 0 0;" class="muted">S/ {{ number_format((float) $budget->amount, 2) }}</p>
-                            </div>
+                    <article class="soft-item">
+                        <div class="soft-item-body">
+                            <p class="soft-item-title">{{ \Carbon\Carbon::createFromFormat('Y-m', $budget->month_key)->translatedFormat('F Y') }}</p>
+                            <p class="soft-item-sub">S/ {{ number_format((float) $budget->amount, 2) }}</p>
+                        </div>
+                        <div style="display:flex; gap:.48rem; align-items:center;">
+                            <span class="amount-pill income">Presupuesto</span>
                             <form method="post" action="{{ route('budgets.destroy', $budget) }}" data-confirm data-confirm-message="¿Eliminar este presupuesto? Esta accion no se puede deshacer.">
                                 @csrf
                                 @method('DELETE')

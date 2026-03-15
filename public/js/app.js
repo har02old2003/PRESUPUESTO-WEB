@@ -12,9 +12,15 @@ if (sliderRoot) {
     const render = () => {
         slides.style.transform = `translateX(-${current * 100}%)`;
         dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
-        prevButton.disabled = current === 0;
-        nextButton.hidden = current === total - 1;
-        finishButton.hidden = current !== total - 1;
+        if (prevButton) {
+            prevButton.disabled = current === 0;
+        }
+        if (nextButton) {
+            nextButton.hidden = current === total - 1;
+        }
+        if (finishButton) {
+            finishButton.hidden = current !== total - 1;
+        }
     };
 
     nextButton?.addEventListener('click', () => {
@@ -105,7 +111,7 @@ if (confirmModal) {
         }
     });
 
-document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && !confirmModal.hidden) {
             closeModal();
         }
@@ -196,3 +202,55 @@ if (enableNotificationsButton) {
 if (limitAlerts.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
     notifyExceededLimits();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const openButtons = [
+        document.getElementById('openQuickTxDesktop'),
+        document.getElementById('openQuickTxMobile'),
+    ].filter(Boolean);
+    const closeButton = document.getElementById('closeQuickTx');
+    const modal = document.getElementById('quickTxModal');
+    const form = document.getElementById('quickTxForm');
+    const submitButton = document.getElementById('quickSubmitBtn');
+    const firstInput = document.getElementById('quick_amount');
+
+    if (!openButtons.length || !closeButton || !modal) {
+        return;
+    }
+
+    const openModal = () => {
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        setTimeout(() => firstInput?.focus(), 20);
+    };
+
+    const closeModal = () => {
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+    };
+
+    openButtons.forEach((button) => button.addEventListener('click', openModal));
+    closeButton.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) {
+            closeModal();
+        }
+    });
+
+    form?.addEventListener('submit', () => {
+        if (!submitButton) {
+            return;
+        }
+        submitButton.disabled = true;
+        submitButton.textContent = 'Guardando...';
+    });
+});

@@ -5,9 +5,9 @@
 @section('page_subtitle', 'Resumen mensual de tus finanzas con enfoque rápido y claro')
 
 @section('content')
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <form method="get" style="display:flex; gap:.6rem; flex-wrap:wrap; align-items:flex-end;">
-            <div class="field" style="max-width:220px; margin:0;">
+    <section class="glass-card section-block" style="margin-bottom:.86rem;">
+        <form method="get" class="form-inline">
+            <div class="field form-grow" style="max-width:240px; margin:0;">
                 <label for="month">Mes a analizar</label>
                 <select id="month" name="month" class="select">
                     @foreach ($months as $monthOption)
@@ -21,23 +21,23 @@
         </form>
     </section>
 
-    <section class="grid-4" style="margin-bottom:.8rem;">
-        <article class="glass-card stat-card">
+    <section class="grid-4" style="margin-bottom:.86rem;">
+        <article class="glass-card stat-card section-block">
             <p class="stat-label">Balance disponible</p>
             <p class="stat-value stat-money">S/ {{ number_format($balance, 2) }}</p>
         </article>
-        <article class="glass-card stat-card">
+        <article class="glass-card stat-card section-block">
             <p class="stat-label">Ingresos</p>
             <p class="stat-value stat-money text-success">+S/ {{ number_format($income, 2) }}</p>
         </article>
-        <article class="glass-card stat-card">
+        <article class="glass-card stat-card section-block">
             <p class="stat-label">Gastos</p>
             <p class="stat-value stat-money text-danger">-S/ {{ number_format($expense, 2) }}</p>
         </article>
-        <article class="glass-card stat-card">
+        <article class="glass-card stat-card section-block">
             <p class="stat-label">Uso de presupuesto</p>
             <p class="stat-value">{{ number_format($usagePercent, 0) }}%</p>
-            <p class="muted" style="margin:.2rem 0 0; font-size:.8rem;">
+            <p class="muted" style="margin:.24rem 0 0; font-size:.82rem;">
                 @if ($budgetAmount > 0)
                     S/ {{ number_format($expense, 2) }} de S/ {{ number_format($budgetAmount, 2) }}
                 @else
@@ -47,13 +47,13 @@
         </article>
     </section>
 
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <h2 style="margin:0; font-size:1.05rem;">Meta semanal</h2>
-        <p class="muted" style="margin:.25rem 0 .65rem; font-size:.82rem;">
+    <section class="glass-card section-block" style="margin-bottom:.86rem;">
+        <h2 class="section-title">Meta semanal</h2>
+        <p class="section-note" style="margin-bottom:.68rem;">
             Semana: {{ $currentWeekStart->translatedFormat('d M') }} - {{ $currentWeekEnd->translatedFormat('d M Y') }}
         </p>
         @if ($weeklyGoalAmount > 0)
-            <div style="display:flex; flex-wrap:wrap; gap:.9rem; align-items:baseline;">
+            <div style="display:flex; flex-wrap:wrap; gap:.95rem; align-items:baseline; margin-top:.1rem;">
                 <p style="margin:0;"><strong>Gasto semanal:</strong> <span class="text-danger">S/ {{ number_format($weeklyExpense, 2) }}</span></p>
                 <p style="margin:0;"><strong>Meta:</strong> S/ {{ number_format($weeklyGoalAmount, 2) }}</p>
                 <p style="margin:0;"><strong>Avance:</strong> {{ number_format($weeklyUsagePercent, 0) }}%</p>
@@ -64,39 +64,42 @@
         <a href="{{ route('budgets.index') }}" class="auth-link" style="display:inline-block; margin-top:.55rem;">Configurar meta semanal</a>
     </section>
 
-    <section class="grid-2" style="margin-bottom:.8rem;">
-        <article class="glass-card" style="padding:1rem;">
-            <h2 style="margin:0 0 .55rem; font-size:1.08rem;">Gastos por categoría</h2>
+    <section class="grid-2" style="margin-bottom:.86rem;">
+        <article class="glass-card section-block">
+            <h2 class="section-title">Gastos por categoría</h2>
             @if ($categoryBreakdown->isEmpty())
                 <p class="muted" style="margin:0;">Aún no hay gastos en este mes.</p>
             @else
-                <div style="display:grid; gap:.45rem;">
+                <div class="soft-list">
                     @foreach ($categoryBreakdown as $item)
-                        <div style="display:flex; justify-content:space-between; gap:.5rem;">
-                            <span>{{ $item['category'] }}</span>
-                            <strong>S/ {{ number_format($item['total'], 2) }}</strong>
-                        </div>
+                        <article class="soft-item">
+                            <div class="soft-item-body">
+                                <p class="soft-item-title">{{ $item['category'] }}</p>
+                                <p class="soft-item-sub">Categoría de gasto</p>
+                            </div>
+                            <span class="amount-pill expense">S/ {{ number_format($item['total'], 2) }}</span>
+                        </article>
                     @endforeach
                 </div>
             @endif
         </article>
 
-        <article class="glass-card" style="padding:1rem;">
-            <h2 style="margin:0 0 .55rem; font-size:1.08rem;">Movimientos recientes</h2>
+        <article class="glass-card section-block">
+            <h2 class="section-title">Movimientos recientes</h2>
             @if ($recentTransactions->isEmpty())
                 <p class="muted" style="margin:0;">No tienes movimientos recientes.</p>
             @else
-                <div style="display:grid; gap:.5rem;">
+                <div class="soft-list">
                     @foreach ($recentTransactions as $row)
-                        <div style="display:flex; justify-content:space-between; gap:.5rem; border-bottom:1px solid rgba(117,155,255,.16); padding-bottom:.4rem;">
-                            <div>
-                                <strong>{{ $row->category }}</strong>
-                                <p class="muted" style="margin:0; font-size:.78rem;">{{ \Carbon\Carbon::parse($row->transaction_date)->translatedFormat('d M Y') }}</p>
+                        <article class="soft-item">
+                            <div class="soft-item-body">
+                                <p class="soft-item-title">{{ $row->category }}</p>
+                                <p class="soft-item-sub">{{ \Carbon\Carbon::parse($row->transaction_date)->translatedFormat('d M Y') }}</p>
                             </div>
-                            <strong class="{{ $row->type === 'income' ? 'text-success' : 'text-danger' }}">
+                            <span class="amount-pill {{ $row->type === 'income' ? 'income' : 'expense' }}">
                                 {{ $row->type === 'income' ? '+' : '-' }}S/ {{ number_format((float) $row->amount, 2) }}
-                            </strong>
-                        </div>
+                            </span>
+                        </article>
                     @endforeach
                 </div>
             @endif

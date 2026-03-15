@@ -2,12 +2,12 @@
 
 @section('title', 'Historial - HAXX COORP')
 @section('page_title', 'Historial mensual')
-@section('page_subtitle', 'Registra y administra ingresos/gastos con fecha y categoría')
+@section('page_subtitle', 'Administra ingresos y gastos con control completo del mes.')
 
 @section('content')
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <form method="get" style="display:flex; gap:.6rem; align-items:flex-end; flex-wrap:wrap;">
-            <div class="field" style="max-width:220px; margin:0;">
+    <section class="glass-card section-block" style="margin-bottom:.8rem;">
+        <form method="get" class="form-inline">
+            <div class="field form-grow" style="max-width:220px; margin:0;">
                 <label for="month">Filtrar por mes</label>
                 <input type="month" id="month" name="month" class="input" value="{{ $month }}">
             </div>
@@ -15,50 +15,13 @@
         </form>
     </section>
 
-    <section class="glass-card" style="padding:1rem; margin-bottom:.8rem;">
-        <h2 style="margin:0 0 .7rem; font-size:1.05rem;">Nuevo movimiento</h2>
-        <form method="post" action="{{ route('transactions.store') }}" class="grid-3">
-            @csrf
-            <div class="field">
-                <label for="type">Tipo</label>
-                <select id="type" name="type" class="select" required>
-                    <option value="expense">Gasto</option>
-                    <option value="income">Ingreso</option>
-                </select>
+    <section class="glass-card section-block">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Movimientos del mes</h2>
+                <p class="section-note">Registros de {{ \Carbon\Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y') }}</p>
             </div>
-
-            <div class="field">
-                <label for="amount">Monto</label>
-                <input type="number" step="0.01" min="0.01" id="amount" name="amount" class="input" required>
-            </div>
-
-            <div class="field">
-                <label for="transaction_date">Fecha</label>
-                <input type="date" id="transaction_date" name="transaction_date" class="input" value="{{ now()->toDateString() }}" required>
-            </div>
-
-            <div class="field">
-                <label for="category">Categoría</label>
-                <select id="category" name="category" class="select" required>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category }}">{{ $category }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="field" style="grid-column:1 / -1;">
-                <label for="note">Nota (opcional)</label>
-                <input id="note" name="note" class="input" maxlength="255" placeholder="¿En qué fue usado?">
-            </div>
-
-            <div style="grid-column:1 / -1; display:flex; justify-content:flex-end;">
-                <button class="btn btn-primary" type="submit">Guardar movimiento</button>
-            </div>
-        </form>
-    </section>
-
-    <section class="glass-card" style="padding:1rem;">
-        <h2 style="margin:0 0 .7rem; font-size:1.05rem;">Movimientos del mes</h2>
+        </div>
 
         @if ($transactions->isEmpty())
             <p class="muted" style="margin:0;">No se encontraron movimientos en este mes.</p>
@@ -87,7 +50,7 @@
                                 <td>{{ $transaction->category }}</td>
                                 <td class="muted">{{ $transaction->note ?: 'Sin nota' }}</td>
                                 <td>
-                                    <strong class="{{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}">
+                                    <strong class="{{ $transaction->type === 'income' ? 'text-success' : 'text-danger' }}" style="white-space:nowrap;">
                                         {{ $transaction->type === 'income' ? '+' : '-' }}S/ {{ number_format((float) $transaction->amount, 2) }}
                                     </strong>
                                 </td>
@@ -95,7 +58,7 @@
                                     <form action="{{ route('transactions.destroy', $transaction) }}" method="post" data-confirm data-confirm-message="¿Eliminar este movimiento? Esta accion no se puede deshacer.">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-danger" type="submit" style="padding:.42rem .62rem; font-size:.76rem;">Eliminar</button>
+                                        <button class="btn btn-danger" type="submit" style="padding:.42rem .62rem; font-size:.76rem; white-space:nowrap;">Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
